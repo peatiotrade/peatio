@@ -22,10 +22,10 @@ class BlockchainService
 
   def initialize(blockchain)
     @blockchain = blockchain
-    @adapter =
-        "Peatio::BlockchainService::#{blockchain.client.capitalize}"
-          .constantize
-          .new(cache: Rails.cache, blockchain: blockchain.dup.tap(&:readonly!))
+    # TODO: Should work for both string and symbol.
+    @adapter = Peatio::BlockchainService
+                 .get_adapter(blockchain.client.to_sym)
+                 .new(cache: Rails.cache, blockchain: blockchain)
     # TODO: Raise Peatio::Blockchain::Error unless class exist.
   end
 

@@ -1,7 +1,7 @@
 # encoding: UTF-8
 # frozen_string_literal: true
 
-describe Peatio::BlockchainService::Ethereum do
+describe BlockchainService::Ethereum do
 
   around do |example|
     WebMock.disable_net_connect!
@@ -30,7 +30,7 @@ describe Peatio::BlockchainService::Ethereum do
         .tap { |b| b.update(height: start_block) }
     end
 
-    let(:client) { Peatio::BlockchainClient::Ethereum.new(blockchain) }
+    let(:client) { BlockchainClient::Ethereum.new(blockchain) }
 
     def request_receipt_body(txid, index)
       { jsonrpc: '2.0',
