@@ -95,7 +95,7 @@ module BlockchainClient
     end
 
     def case_sensitive?
-      true
+      false
     end
 
     protected

@@ -2,10 +2,10 @@
 # frozen_string_literal: true
 
 module WalletClient
-  class Geth < Base
-
-    def initialize(*)
-      super
+  class Geth
+    extend Memoist
+    
+    def initialize(wallet)
       @json_rpc_call_id  = 0
       @json_rpc_endpoint = URI.parse(wallet.uri)
     end

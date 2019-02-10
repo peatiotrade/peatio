@@ -109,4 +109,3 @@ class BlockchainService::Ethereum < Peatio::BlockchainService::Abstract
   end
 end
 
-Peatio::BlockchainService.register_adapter(:ethereum, BlockchainService::Ethereum)

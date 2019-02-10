@@ -14,7 +14,7 @@ module BlockchainClient
     # @return [BaseAPI]
     def [](key)
       blockchain = Blockchain.find_by(key: key)
-      # binding.pry if blockchain.client == 'ethereum'
+
       if blockchain.try(:client).present?
         "BlockchainClient::#{blockchain.client.capitalize}"
       end.constantize.new(blockchain)

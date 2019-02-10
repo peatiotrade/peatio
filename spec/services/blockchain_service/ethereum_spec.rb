@@ -321,7 +321,6 @@ describe BlockchainService::Ethereum do
       end
 
       it 'changes withdraw confirmations amount & state if it has enough confirmations' do
-        # binding.pry
         subject.each do |withdrawal|
           expect(withdrawal.confirmations).to_not eq 0
           if withdrawal.confirmations >= blockchain.min_confirmations
