@@ -19,7 +19,6 @@ module Worker
 
     def process(payload, metadata, delivery_info)
       payload.symbolize_keys!
-
       case payload[:action]
       when 'submit'
         submit build_order(payload[:order])

@@ -1,9 +1,8 @@
-# TODO: Should work without require_relative.
-require_relative '../bench/matching'
+# frozen_string_literal: true
 
 namespace :bench do
   desc 'Mathing'
-  task :matching do
-    Bench::Matching.new()
+  task matching: :environment do
+    Bench::Matching.new.run!
   end
 end

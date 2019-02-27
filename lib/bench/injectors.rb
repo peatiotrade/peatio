@@ -11,6 +11,16 @@ module Bench
           .new(config)
       end
     end
+
+    class Base
+      attr_reader :config
+
+      def initialize(config)
+        @config = config
+        @number = config[:number].to_i
+        @markets = ::Market.where(id: config[:markets].split(',').map(&:squish).reject(&:blank?))
+      end
+    end
   end
 end
 
