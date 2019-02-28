@@ -1,7 +1,7 @@
 currencies: usd,eur
-traders:    2
+traders:    20
 threads:    100
 orders:
   injector: dummy
-  number: 1000
+  number: 5000
   markets: eurusd

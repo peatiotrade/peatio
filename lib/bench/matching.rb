@@ -9,11 +9,10 @@ module Bench
     end
 
     def run!
-      Kernel.puts "Generating members ..."
-      # TODO: Generate members dynamically.
+      Kernel.puts "Creating members ..."
+      @members = Factories.create(:member, @config[:traders])
       Kernel.puts "Generating orders by injector ..."
       @injector.generate!
-      binding.pry
       run_workers!
     end
 

@@ -11,17 +11,14 @@ module Bench
         %i[min_volume max_volume min_price max_price].each do |var|
           instance_variable_set(:"@#{var}", config[var])
         end
-        # TODO: Deal with members.
-        @members = Member.all
       end
 
-      def generate!
+      def generate!(members = nil)
+        @members = members || Member.all
         @queue = Queue.new
         ActiveRecord::Base.transaction do
           Array.new(@number) do
-            order = construct_order
-            @queue << order
-            order
+            create_order.tap { |o| @queue << o }
           end
         end
       end
@@ -31,20 +28,26 @@ module Bench
       end
 
       private
+      def create_order
+        Order.new(construct_order)
+             .tap(&:fix_number_precision)
+             .tap { |o| o.locked = o.origin_locked = o.compute_locked }
+             .tap { |o| o.hold_account!.lock_funds(o.locked) }
+             .tap(&:save)
+      end
+
       def construct_order
-        # TODO: Lock funds.
-        klass = [OrderBid, OrderAsk].sample
         market = @markets.sample
-        klass.create!(
-               state:    Order::WAIT,
-               member:   @members.sample,
-               market:   market,
-               ask:      market.base_unit,
-               bid:      market.quote_unit,
-               ord_type: :limit,
-               price:    rand(@min_price..@max_price),
-               volume:   rand(@min_volume..@max_volume)
-        )
+        type = %w[OrderBid OrderAsk].sample
+        { type:     type,
+          state:    Order::WAIT,
+          member:   @members.sample,
+          market:   market,
+          ask:      market.base_unit,
+          bid:      market.quote_unit,
+          ord_type: :limit,
+          price:    rand(@min_price..@max_price),
+          volume:   rand(@min_volume..@max_volume) }
       end
 
       def default_config
