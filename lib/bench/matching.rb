@@ -1,3 +1,5 @@
+require "rabbitmq/http/client"
+
 require_relative 'injectors'
 
 module Bench
@@ -38,18 +40,27 @@ module Bench
 
     # Doesn't work correctly.
     def wait_for_messages_ack
-      conn = Bunny.new AMQPConfig.connect
-      conn.start
-      ch = conn.create_channel
-      queue = ch.queue *AMQPConfig.binding_queue('matching')
-
       loop do
-        mc = queue.message_count
-        queue.status
-        Kernel.puts "Number of messages in queue is: #{mc}"
-        break if mc.zero?
+        # TODO: Write useful data
+        queue_info.tap do |qi|
+          Kernel.puts "Number of messages in queue is: #{qi[:messages]}"
+          break if qi[:messages].zero?
+        end
         sleep 0.5
       end
+    end
+
+    def queue_info
+      @client ||= ::URI::HTTP.build(
+                    scheme:   :http,
+                    host:     ENV.fetch('RABBITMQ_HOST', 'localhost'),
+                    port:     15672,
+                    userinfo: "#{ENV.fetch('RABBITMQ_USER', 'guest')}:#{ENV.fetch('RABBITMQ_PASSWORD', 'guest')}"
+      ).yield_self { |endpoint| RabbitMQ::HTTP::Client.new(endpoint.to_s) }
+
+      binding.pry
+      queue_info = @client.queue_info('/', 'peatio.matching').deep_symbolize_keys
+      formatted = queue_info.slice(:messages, :name)
     end
 
     private

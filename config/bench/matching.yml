@@ -3,5 +3,5 @@ traders:    25
 threads:    50
 orders:
   injector: dummy
-  number: 2
+  number: 5
   markets: eurusd
