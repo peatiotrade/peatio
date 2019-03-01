@@ -27,6 +27,10 @@ module Bench
         @queue.empty? ? nil : @queue.pop
       end
 
+      def size
+        @queue.size
+      end
+
       private
       def create_order
         Order.new(construct_order)
