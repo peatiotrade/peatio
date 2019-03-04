@@ -2,6 +2,10 @@ currencies: usd,eur
 traders:    25
 threads:    50
 orders:
-  injector: dummy
-  number: 1000
-  markets: eurusd
+  injector:   dummy
+  number:     1000
+  markets:    eurusd
+  min_volume: 0.1
+  max_volume: 1
+  min_price:  0.5
+  max_price:  2

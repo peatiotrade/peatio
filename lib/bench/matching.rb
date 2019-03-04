@@ -59,12 +59,13 @@ module Bench
       end.map(&:join)
     end
 
+    # TODO: Find better solution for getting message number in queue
     def wait_for_messages_processing
+      # Wait for RMQ queue status update.
       loop do
+        break if queue_info[:idle_since].present? &&
+          Time.parse("#{queue_info[:idle_since]} UTC") >= @publish_started_at
         sleep 0.5
-        info = queue_info
-        Kernel.puts "Number of messages in queue is: #{info[:messages]}"
-        break if info[:idle_since].present?
       end
     end
 
