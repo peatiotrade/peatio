@@ -7,12 +7,13 @@ module Bench
     # TODO: Custom config file support.
     def initialize(config_file_path = 'config/bench/matching.yml')
       @config = YAML.load_file(Rails.root.join(config_file_path)).deep_symbolize_keys
-      @rmq_http_client ||= ::URI::HTTP.build(
+      @rmq_http_client = ::URI::HTTP.build(
         scheme:   :http,
         host:     ENV.fetch('RABBITMQ_HOST', 'localhost'),
         port:     15672,
         userinfo: "#{ENV.fetch('RABBITMQ_USER', 'guest')}:#{ENV.fetch('RABBITMQ_PASSWORD', 'guest')}"
       ).yield_self { |endpoint| RabbitMQ::HTTP::Client.new(endpoint.to_s) }
+
       @injector = Injectors.initialize_injector(@config[:orders])
       @currencies = Currency.where(id: @config[:currencies].split(',').map(&:squish).reject(&:blank?))
       @errors = []
@@ -36,12 +37,11 @@ module Bench
       publish_messages
 
       @publish_finished_at = Time.now
-      Kernel.puts "Messages are published to RabbitMQ. Waiting for processing..."
-      wait_for_messages_processing
-      @consuming_finished_at = Time.now
+      Kernel.puts "Messages are published to RabbitMQ."
 
-      Kernel.puts result
-      save_results
+      Kernel.puts "Waiting for order processing by matching daemon..."
+      wait_for_messages_processing
+      @matching_finished_at = Time.now
     end
 
     def publish_messages
@@ -73,16 +73,14 @@ module Bench
       @result ||=
       begin
         publish_ops =  @orders_number / (@publish_finished_at - @publish_started_at)
-        consuming_ops =  @orders_number / (@consuming_finished_at - @publish_started_at)
+        matching_ops =  @orders_number / (@matching_finished_at - @publish_started_at)
 
-        {
-          config: @config,
+        { config: @config,
           publish_started_at: @publish_started_at,
           publish_finished_at: @publish_finished_at,
-          consuming_finished_at: @consuming_finished_at,
+          matching_finished_at: @matching_finished_at,
           publish_ops: publish_ops,
-          consuming_ops: consuming_ops
-        }
+          consuming_ops: matching_ops }
       end
     end
 
