@@ -7,6 +7,8 @@ module Bench
     # TODO: Custom config file support.
     def initialize(config_file_path = 'config/bench/matching.yml')
       @config = YAML.load_file(Rails.root.join(config_file_path)).deep_symbolize_keys
+
+      # TODO: Use Faraday instead of RabbitMQ::HTTP::Client.
       @rmq_http_client = ::URI::HTTP.build(
         scheme:   :http,
         host:     ENV.fetch('RABBITMQ_HOST', 'localhost'),
@@ -60,10 +62,12 @@ module Bench
     end
 
     # TODO: Find better solution for getting message number in queue
+    # E.g there is rabbitmqctl list_queues.
     def wait_for_messages_processing
       # Wait for RMQ queue status update.
       loop do
-        break if queue_info[:idle_since].present? &&
+        break if queue_info[:messages].zero? &&
+          queue_info[:idle_since].present? &&
           Time.parse("#{queue_info[:idle_since]} UTC") >= @publish_started_at
         sleep 0.5
       end
@@ -80,15 +84,16 @@ module Bench
           publish_finished_at: @publish_finished_at,
           matching_finished_at: @matching_finished_at,
           publish_ops: publish_ops,
-          consuming_ops: matching_ops }
+          matching_ops: matching_ops }
       end
     end
 
     def save_results
     end
 
+    # TODO: Use get queue by name.
     def queue_info
-      @rmq_http_client.queue_info('/', AMQPConfig.binding_queue(:matching).first).deep_symbolize_keys
+      @rmq_http_client.list_queues.find { |q| q.name = AMQPConfig.binding_queue(:matching).first }
     end
 
     private

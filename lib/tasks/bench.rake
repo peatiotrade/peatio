@@ -7,6 +7,6 @@ namespace :bench do
     matching.run!
 
     # Temporary just print benchmark results.
-    Kernel.puts matching.results
+    Kernel.puts matching.result
   end
 end

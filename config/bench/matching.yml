@@ -3,7 +3,7 @@ traders:    25        # Number of members who will trade.
 threads:    50        # Number of simultaneous threads which will publish messages to RabbitMQ.
 orders:
   injector:   dummy   # Order injector name.
-  number:     10000   # Number of orders to be created and published to RabbitMQ (at least 10_000).
+  number:     10000   # Number of orders to be created and published to RabbitMQ (at least 10000).
   markets:    eurusd  # Markets for performing trading.
   # Dummy injector specific config.
   min_volume: 0.1     # Order min volume (default 0.1).
