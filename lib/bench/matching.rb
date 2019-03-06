@@ -42,7 +42,7 @@ module Bench
       Kernel.puts "Messages are published to RabbitMQ."
 
       Kernel.puts "Waiting for order processing by matching daemon..."
-      wait_for_messages_processing
+      wait_for_matching
       @matching_finished_at = Time.now
     end
 
@@ -63,12 +63,13 @@ module Bench
 
     # TODO: Find better solution for getting message number in queue
     # E.g there is rabbitmqctl list_queues.
-    def wait_for_messages_processing
+    def wait_for_matching
       # Wait for RMQ queue status update.
       loop do
-        break if queue_info[:messages].zero? &&
-          queue_info[:idle_since].present? &&
-          Time.parse("#{queue_info[:idle_since]} UTC") >= @publish_started_at
+        queue_status = queue_info
+        break if queue_status[:messages].zero? &&
+                 queue_status[:idle_since].present? &&
+                 Time.parse("#{queue_status[:idle_since]} UTC") >= @publish_started_at
         sleep 0.5
       end
     end
@@ -93,7 +94,7 @@ module Bench
 
     # TODO: Use get queue by name.
     def queue_info
-      @rmq_http_client.list_queues.find { |q| q.name = AMQPConfig.binding_queue(:matching).first }
+      @rmq_http_client.list_queues.find { |q| q[:name] == AMQPConfig.binding_queue(:matching).first }
     end
 
     private
