@@ -16,6 +16,7 @@ module Bench
         break if queue_status[:messages].zero? &&
                  queue_status[:idle_since].present? &&
                  Time.parse("#{queue_status[:idle_since]} UTC") >= @execution_started_at
+
         sleep 0.5
       end
     end
@@ -33,9 +34,17 @@ module Bench
         end
     end
 
+    def trade_executor_is_running?
+      trade_execution_queue_status[:consumers].positive?
+    end
+
     private
+
     def trade_execution_queue_status
-      @rmq_http_client.list_queues.find { |q| q[:name] == AMQPConfig.binding_queue(:trade_executor).first }
+      response = @rmq_http_client.get('/api/queues/')
+      response.body.map!(&:deep_symbolize_keys).find do |q|
+        q[:name] == AMQPConfig.binding_queue(:trade_executor).first
+      end
     end
 
     def trades_number

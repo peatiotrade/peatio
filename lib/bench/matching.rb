@@ -1,4 +1,5 @@
-require 'rabbitmq/http/client'
+require 'faraday'
+require 'faraday_middleware'
 
 # TODO: Add Bench::Error and better errors processing.
 # TODO: Add Bench::Report and extract all metrics to it.
@@ -8,17 +9,23 @@ module Bench
     def initialize(config)
       @config = config
 
-      # TODO: Use Faraday instead of RabbitMQ::HTTP::Client.
-      @rmq_http_client = ::URI::HTTP.build(
+      endpoint = URI::HTTP.build(
         scheme:   :http,
         host:     ENV.fetch('RABBITMQ_HOST', 'localhost'),
         port:     15672,
         userinfo: "#{ENV.fetch('RABBITMQ_USER', 'guest')}:#{ENV.fetch('RABBITMQ_PASSWORD', 'guest')}"
-      ).yield_self { |endpoint| RabbitMQ::HTTP::Client.new(endpoint.to_s) }
+      )
+
+      @rmq_http_client = Faraday.new(url: endpoint.to_s) do |conn|
+        conn.basic_auth endpoint.user, endpoint.password
+        conn.use        FaradayMiddleware::FollowRedirects, limit: 3
+        conn.use        Faraday::Response::RaiseError
+        conn.adapter    Faraday.default_adapter
+        conn.response   :json, content_type: /\bjson$/
+      end
 
       @injector = Injectors.initialize_injector(@config[:orders])
       @currencies = Currency.where(id: @config[:currencies].split(',').map(&:squish).reject(&:blank?))
-      # TODO: Print errors in the end of benchmark and include them into report.
       @errors = []
     end
 
@@ -31,7 +38,6 @@ module Bench
       @members.map(&method(:become_billionaire))
 
       Kernel.puts "Generating orders by injector and saving them in db..."
-      # TODO: Add orders generation progress bar.
       @injector.generate!(@members)
 
       @orders_number = @injector.size
@@ -50,11 +56,18 @@ module Bench
     end
 
     def publish_messages
+      mutex = Mutex.new
+      index = 0
+
       Array.new(@config[:threads]) do
         Thread.new do
           loop do
             order = @injector.pop
             break unless order
+             mutex.synchronize do
+               index += 1
+               Kernel.print "\rPublished #{index}/#{@orders_number}"
+             end
             AMQPQueue.enqueue(:matching, action: 'submit', order: order.to_matching_attributes)
           rescue StandardError => e
             Kernel.puts e
@@ -62,12 +75,21 @@ module Bench
           end
         end
       end.map(&:join)
+      Kernel.puts
     end
 
     # TODO: Find better solution for getting message number in queue.
     # E.g there is rabbitmqctl list_queues.
     # TODO: Write useful queue info stats into file.
     def wait_for_matching
+      logger = File.open('log/bench-matching.log', 'w')
+      thread = Thread.new do
+        loop do
+          logger.puts matching_queue_status.to_json
+          sleep 5
+        end
+      end
+
       loop do
         queue_status = matching_queue_status
         break if queue_status[:messages].zero? &&
@@ -75,6 +97,9 @@ module Bench
                  Time.parse("#{queue_status[:idle_since]} UTC") >= @publish_started_at
         sleep 0.5
       end
+
+      thread.exit
+      logger.close
     end
 
     # TODO: Add more useful metrics to result.
@@ -91,8 +116,13 @@ module Bench
           matching_started_at: @publish_started_at.iso8601(6),
           matching_finished_at: @matching_finished_at.iso8601(6),
           publish_ops: publish_ops,
-          matching_ops: matching_ops }
+          matching_ops: matching_ops,
+          errors: @errors }
       end
+    end
+
+    def matching_is_running?
+      matching_queue_status[:consumers].positive?
     end
 
     def save_report
@@ -104,10 +134,12 @@ module Bench
     end
 
     private
-    # TODO: Use get queue by name.
-    # TODO: Use Faraday instead of RabbitMQ::HTTP::Client.
+
     def matching_queue_status
-      @rmq_http_client.list_queues.find { |q| q[:name] == AMQPConfig.binding_queue(:matching).first }
+      response = @rmq_http_client.get('/api/queues/')
+      response.body.map!(&:deep_symbolize_keys).find do |q|
+        q[:name] == AMQPConfig.binding_queue(:matching).first
+      end
     end
 
     # TODO: Move to Helpers.

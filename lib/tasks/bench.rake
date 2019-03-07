@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
-# TODO: Add descriptions.
 # TODO: Save reports directly after running bench (in case next will error).
+
 namespace :bench do
-  desc 'Matching'
+  # Benchmark for matching daemon.
+  desc 'Benchmark for orders matching worker'
   task :matching, [:config_load_path] => [:environment] do |_t, args|
     args.with_defaults(:config_load_path => 'config/bench/matching.yml')
 
@@ -14,17 +15,25 @@ namespace :bench do
           Kernel.pp config
 
           matching = Bench::Matching.new(config)
+
+          unless matching.matching_is_running?
+            Kernel.puts 'Trade Executor daemon is not running!'
+            exit 1
+          end
+
           matching.run!
           memo << matching
           matching.save_report
-          Kernel.puts "Sleep before next bench"
+          Kernel.puts 'Sleep before next bench'
           sleep 5
         end
 
     benches.each {|b| Kernel.pp b.result}
   end
 
-  desc 'Trade Execution'
+  # Benchmark for trade_executor daemon.
+  # Executes matching benchmark before run.
+  desc 'Benchmark for trade executor worker'
   task :trade_execution, [:config_load_path] => [:environment] do |_t, args|
     args.with_defaults(:config_load_path => 'config/bench/trade_execution.yml')
 
@@ -35,17 +44,25 @@ namespace :bench do
         Kernel.pp config
 
         trade_execution = Bench::TradeExecution.new(config)
+
+        unless trade_execution.trade_executor_is_running?
+          Kernel.puts 'Trade Executor daemon is not running!'
+          exit 1
+        end
+
         trade_execution.run!
         memo << trade_execution
         trade_execution.save_report
-        Kernel.puts "Sleep before next bench"
+        Kernel.puts 'Sleep before next bench'
         sleep 5
       end
 
     benches.each {|b| Kernel.pp b.result}
   end
 
-  desc 'Order Processing'
+  # Benchmark for order_processor daemon.
+  # Executes trade_execution & matching benchmarks before run.
+  desc 'Benchmark for order processor worker'
   task :order_processing, [:config_load_path] => [:environment] do |_t, args|
     args.with_defaults(:config_load_path => 'config/bench/order_processing.yml')
 
@@ -56,10 +73,16 @@ namespace :bench do
         Kernel.pp config
 
         order_processing = Bench::OrderProcessing.new(config)
+
+        unless matching.order_processor_is_running?
+          Kernel.puts 'Trade Executor daemon is not running!'
+          exit 1
+        end
+
         order_processing.run!
         memo << order_processing
         order_processing.save_report
-        Kernel.puts "Sleep before next bench"
+        Kernel.puts 'Sleep before next bench'
         sleep 5
       end
 
