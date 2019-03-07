@@ -65,6 +65,7 @@ module Bench
     end
 
     private
+
     def init_wait_orders_queue!
       orders = Order.where(state: Order::WAIT).shuffle
       @wait_orders_queue =
@@ -74,7 +75,10 @@ module Bench
     end
 
     def order_processing_queue_status
-      @rmq_http_client.list_queues.find { |q| q.name == AMQPConfig.binding_queue(:order_processor).first }
+      response = @rmq_http_client.get('/api/queues/')
+      response.body.map!(&:deep_symbolize_keys).find do |q|
+        q[:name] == AMQPConfig.binding_queue(:order_processor).first
+      end
     end
   end
 end

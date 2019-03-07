@@ -41,7 +41,10 @@ module Bench
     private
 
     def trade_execution_queue_status
-      @rmq_http_client.list_queues.find { |q| q[:name] == AMQPConfig.binding_queue(:trade_executor).first }
+      response = @rmq_http_client.get('/api/queues/')
+      response.body.map!(&:deep_symbolize_keys).find do |q|
+        q[:name] == AMQPConfig.binding_queue(:trade_executor).first
+      end
     end
 
     def trades_number

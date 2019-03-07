@@ -1,4 +1,5 @@
-require 'rabbitmq/http/client'
+require 'faraday'
+require 'faraday_middleware'
 
 # TODO: Add Bench::Error and better errors processing.
 # TODO: Add Bench::Report and extract all metrics to it.
@@ -8,13 +9,20 @@ module Bench
     def initialize(config)
       @config = config
 
-      # TODO: Use Faraday instead of RabbitMQ::HTTP::Client.
-      @rmq_http_client = ::URI::HTTP.build(
+      endpoint = URI::HTTP.build(
         scheme:   :http,
         host:     ENV.fetch('RABBITMQ_HOST', 'localhost'),
         port:     15672,
         userinfo: "#{ENV.fetch('RABBITMQ_USER', 'guest')}:#{ENV.fetch('RABBITMQ_PASSWORD', 'guest')}"
-      ).yield_self { |endpoint| RabbitMQ::HTTP::Client.new(endpoint.to_s) }
+      )
+
+      @rmq_http_client = Faraday.new(url: endpoint.to_s) do |conn|
+        conn.basic_auth endpoint.user, endpoint.password
+        conn.use        FaradayMiddleware::FollowRedirects, limit: 3
+        conn.use        Faraday::Response::RaiseError
+        conn.adapter    Faraday.default_adapter
+        conn.response   :json, content_type: /\bjson$/
+      end
 
       @injector = Injectors.initialize_injector(@config[:orders])
       @currencies = Currency.where(id: @config[:currencies].split(',').map(&:squish).reject(&:blank?))
@@ -108,10 +116,12 @@ module Bench
     end
 
     private
-    # TODO: Use get queue by name.
-    # TODO: Use Faraday instead of RabbitMQ::HTTP::Client.
+
     def matching_queue_status
-      @rmq_http_client.list_queues.find { |q| q[:name] == AMQPConfig.binding_queue(:matching).first }
+      response = @rmq_http_client.get('/api/queues/')
+      response.body.map!(&:deep_symbolize_keys).find do |q|
+        q[:name] == AMQPConfig.binding_queue(:matching).first
+      end
     end
 
     # TODO: Move to Helpers.
