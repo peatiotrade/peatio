@@ -60,6 +60,10 @@ module Bench
         end
     end
 
+    def order_processor_is_running?
+      order_processing_queue_status[:consumers].positive?
+    end
+
     private
     def init_wait_orders_queue!
       orders = Order.where(state: Order::WAIT).shuffle
