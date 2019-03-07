@@ -96,10 +96,10 @@ module Bench
     end
 
     def save_report
-      report_name = "#{self.class.name.humanize.demodulize}_#{@config[:orders][:injector]}_\
-                     #{@config[:orders][:number]}_#{Time.now.iso8601}.yml"
-      File.open(Rails.root.join(@config[:report_path], report_name, 'w')) do |f|
-        f.puts YAML.dump(@result.deep_stringify_keys)
+      report_name = "#{self.class.name.humanize.demodulize}-#{@config[:orders][:injector]}-"\
+                    "#{@config[:orders][:number]}-#{Time.now.iso8601}.yml"
+      File.open(Rails.root.join(@config[:report_path], report_name), 'w') do |f|
+        f.puts YAML.dump(result.deep_stringify_keys)
       end
     end
 

@@ -16,6 +16,7 @@ namespace :bench do
           matching = Bench::Matching.new(config)
           matching.run!
           memo << matching
+          matching.save_report
           Kernel.puts "Sleep before next bench"
           sleep 5
         end
@@ -36,6 +37,7 @@ namespace :bench do
         trade_execution = Bench::TradeExecution.new(config)
         trade_execution.run!
         memo << trade_execution
+        trade_execution.save_report
         Kernel.puts "Sleep before next bench"
         sleep 5
       end
@@ -56,6 +58,7 @@ namespace :bench do
         order_processing = Bench::OrderProcessing.new(config)
         order_processing.run!
         memo << order_processing
+        order_processing.save_report
         Kernel.puts "Sleep before next bench"
         sleep 5
       end

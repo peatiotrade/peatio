@@ -55,3 +55,6 @@ tags
 # Ignore useless yarn files and cache
 .cache
 .yarnrc
+
+# Ignore bench reports
+/reports/*
