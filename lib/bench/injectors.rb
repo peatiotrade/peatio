@@ -24,11 +24,14 @@ module Bench
       def generate!(members = nil)
         @members = members || Member.all
         @queue = Queue.new
+        ActiveRecord::Base.logger.level = Logger::INFO
         ActiveRecord::Base.transaction do
-          Array.new(@number) do
+          Array.new(@number) do |i|
             create_order.tap { |o| @queue << o }
+            Kernel.print "\rCreated #{i + 1}/#{@number}"
           end
         end
+        Kernel.puts
       end
 
       def pop

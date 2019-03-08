@@ -39,7 +39,6 @@ module Bench
       @members.map(&method(:become_billionaire))
 
       Kernel.puts "Generating orders by injector and saving them in db..."
-      # TODO: Add orders generation progress bar.
       @injector.generate!(@members)
 
       @orders_number = @injector.size
@@ -58,7 +57,9 @@ module Bench
     end
 
     def publish_messages
-      Array.new(@config[:threads]) do
+      number = @config[:threads]
+      Array.new(number) do |i|
+        Kernel.print "\rPublished #{i + 1}/#{number}"
         Thread.new do
           loop do
             order = @injector.pop
@@ -70,6 +71,7 @@ module Bench
           end
         end
       end.map(&:join)
+      Kernel.puts
     end
 
     # TODO: Find better solution for getting message number in queue.
