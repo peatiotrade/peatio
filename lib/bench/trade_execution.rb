@@ -40,6 +40,7 @@ module Bench
 
     private
 
+    # FIXME: Issue with infinite waiting.
     def trade_execution_queue_status
       response = @rmq_http_client.get('/api/queues/')
       response.body.map!(&:deep_symbolize_keys).find do |q|
