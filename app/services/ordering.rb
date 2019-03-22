@@ -10,7 +10,29 @@ class Ordering
   end
 
   def submit
-    ActiveRecord::Base.transaction { @orders.each(&method(:do_submit)) }
+    # TODO: Do we need simple balance check before saving ???
+    ActiveRecord::Base.transaction do
+      @orders.each do |o|
+        o.fix_number_precision # number must be fixed before computing locked
+        o.locked = o.origin_locked = o.compute_locked
+        o.save!
+      end
+    end
+
+    @order.each do |order|
+      AMQPQueue.enqueue \
+        :order_processor,
+        { action: 'submit', order: order.attributes },
+        { persistent: false }
+    end
+  end
+
+  # @deprecated
+  # Method is deprecated because in new architecture
+  # we just publish message and OrderProcessor creates it.
+  # Instead of creating order and updating balance on API call.
+  def submit!
+    ActiveRecord::Base.transaction { @orders.each(&method(:do_submit!)) }
 
     @orders.each do |order|
       AMQPQueue.enqueue(:matching, action: 'submit', order: order.to_matching_attributes)
@@ -29,7 +51,8 @@ class Ordering
 
 private
 
-  def do_submit(order)
+  # @deprecated
+  def do_submit!(order)
     order.fix_number_precision # number must be fixed before computing locked
     order.locked = order.origin_locked = order.compute_locked
     order.save!
