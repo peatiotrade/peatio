@@ -17,15 +17,15 @@ module Bench
 
       def construct_order
         market = @markets.sample
-        type = %w[OrderBid OrderAsk].sample
+        type = config.fetch(:side) { %w[OrderBid OrderAsk].sample }
         { type:     type,
-          state:    Order::WAIT,
+          state:    Order::PENDING,
           member:   @members.sample,
           market:   market,
           ask:      market.base_unit,
           bid:      market.quote_unit,
           ord_type: :limit,
-          price:    rand(@min_price..@max_price),
+          price:    config.fetch(:price) { rand(@min_price..@max_price) },
           volume:   rand(@min_volume..@max_volume) }
       end
 
