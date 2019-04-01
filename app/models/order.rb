@@ -9,7 +9,8 @@ class Order < ApplicationRecord
   InsufficientMarketLiquidity = Class.new(StandardError)
 
   extend Enumerize
-  enumerize :state, in: { wait: 100, done: 200, cancel: 0 }, scope: true
+  STATES = { pending: 0, wait: 100, done: 200, cancel: -100, reject: -200 }.freeze
+  enumerize :state, in: STATES, scope: true
 
   TYPES = %w[ market limit ]
   enumerize :ord_type, in: TYPES, scope: true
@@ -22,9 +23,11 @@ class Order < ApplicationRecord
   validates :origin_volume, numericality: { greater_than: 0 }
   validate  :market_order_validations, if: ->(order) { order.ord_type == 'market' }
 
-  WAIT   = 'wait'
-  DONE   = 'done'
-  CANCEL = 'cancel'
+  PENDING = 'pending'
+  WAIT    = 'wait'
+  DONE    = 'done'
+  CANCEL  = 'cancel'
+  REJECT  = 'reject'
 
   scope :done, -> { with_state(:done) }
   scope :active, -> { with_state(:wait) }
