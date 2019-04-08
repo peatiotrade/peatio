@@ -72,7 +72,7 @@ describe WalletServices::Geth do
 
       let :personal_sendTransaction_request do
       { jsonrpc: '2.0',
-        id:       1,
+        id:       2,
         method:  'personal_sendTransaction',
         params:
           [
@@ -145,7 +145,7 @@ describe WalletServices::Geth do
 
       let :personal_sendTransaction_request do
         { jsonrpc: '2.0',
-          id:      1,
+          id:      2,
           method:  'personal_sendTransaction',
           params:
             [

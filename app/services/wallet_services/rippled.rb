@@ -19,7 +19,7 @@ module WalletServices
 
     def collect_deposit!(deposit, options={})
       pa = deposit.account.payment_address
-      spread_hash = spread_deposit(deposit)
+      spread_hash = spread_deposit(deposit, client)
       spread_hash.map do |address, amount|
         client.create_withdrawal!(
           { address: pa.address, secret: pa.secret },

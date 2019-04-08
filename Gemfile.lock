@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/rubykube/peatio-core.git
-  revision: b5a8d86cd81f8149094a1b011bfe9e0321a60631
+  revision: 8ae61cab9e93786fe3b5d79d734dfd4f81219e8e
   branch: feature/plugable-blockchains
   specs:
     peatio (0.4.5)

@@ -19,7 +19,7 @@ module WalletServices
 
       # This will automatically deduct fee from amount so we can withdraw exact amount.
       options = options.merge( subtract_fee: true )
-      spread_hash = spread_deposit(deposit)
+      spread_hash = spread_deposit(deposit, client)
       spread_hash.map do |address, amount|
         client.create_withdrawal!(
           { address: pa.address },
