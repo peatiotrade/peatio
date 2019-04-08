@@ -51,8 +51,7 @@ gem 'jwt-multisig', '~> 1.0.0'
 gem 'cash-addr', '~> 0.2.0', require: 'cash_addr'
 gem 'digest-sha3', '~> 1.1.0'
 gem 'scout_apm', '~> 2.4', require: false
-gem 'peatio', :git => 'https://github.com/rubykube/peatio-core.git',  :branch => 'feature/pluggable-wallets'
-# gem 'peatio', path: '../peatio-core'
+gem 'peatio', :git => 'https://github.com/rubykube/peatio-core.git',  :branch => 'feature/plugable-blockchains'
 gem 'rack-cors', '~> 1.0.2', require: false
 gem 'env-tweaks', '~> 1.0.0'
 gem 'vault', '~> 0.12', require: false

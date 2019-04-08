@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe BlockchainService::Ripple do
+describe BlockchainServices::Ripple do
   around do |example|
     WebMock.disable_net_connect!
     example.run
@@ -19,7 +19,7 @@ describe BlockchainService::Ripple do
 
     let(:client) { BlockchainClient[blockchain.key] }
     let(:process_blockchain) do
-      BlockchainService[blockchain.key].process_blockchain(force: true)
+      BlockchainService.new(blockchain).process_blockchain(force: true)
     end
     let(:blockchain) do
       Blockchain.find_by_key('xrp-testnet')

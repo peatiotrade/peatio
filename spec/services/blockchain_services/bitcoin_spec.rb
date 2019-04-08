@@ -1,7 +1,7 @@
 # encoding: UTF-8
 # frozen_string_literal: true
 
-describe BlockchainService::Bitcoin do
+describe BlockchainServices::Bitcoin do
 
   around do |example|
     WebMock.disable_net_connect!
@@ -24,7 +24,7 @@ describe BlockchainService::Bitcoin do
         .tap { |b| b.update(height: start_block) }
     end
 
-    let(:client) { BlockchainClient[blockchain.key] }
+    let(:client) { BlockchainClient::Bitcoin.new(blockchain) }
 
     def request_block_hash_body(block_height)
       { jsonrpc: '1.0',
@@ -84,7 +84,7 @@ describe BlockchainService::Bitcoin do
         end
 
         # Process blockchain data.
-        BlockchainService[blockchain.key].process_blockchain(force: true)
+        BlockchainService.new(blockchain).process_blockchain(force: true)
       end
 
       subject { Deposits::Coin.where(currency: currency) }
@@ -106,7 +106,7 @@ describe BlockchainService::Bitcoin do
 
         it 'doesn\'t change deposit' do
           expect(blockchain.height).to eq start_block
-          expect{ BlockchainService[blockchain.key].process_blockchain(force: true)}.not_to change{subject}
+          expect{ BlockchainService.new(blockchain).process_blockchain(force: true)}.not_to change{subject}
         end
       end
     end
@@ -159,7 +159,7 @@ describe BlockchainService::Bitcoin do
         end
 
         # Process blockchain data.
-        BlockchainService[blockchain.key].process_blockchain(force: true)
+        BlockchainService.new(blockchain).process_blockchain(force: true)
       end
 
       subject { Deposits::Coin.where(currency: currency) }
@@ -181,7 +181,7 @@ describe BlockchainService::Bitcoin do
 
         it 'doesn\'t change deposit' do
           expect(blockchain.height).to eq start_block
-          expect{ BlockchainService[blockchain.key].process_blockchain(force: true)}.not_to change{subject}
+          expect{ BlockchainService.new(blockchain).process_blockchain(force: true)}.not_to change{subject}
         end
       end
     end
@@ -240,7 +240,7 @@ describe BlockchainService::Bitcoin do
             .to_return(body: blk.to_json)
         end
 
-        BlockchainService[blockchain.key].process_blockchain(force: true)
+        BlockchainService.new(blockchain).process_blockchain(force: true)
       end
 
       subject { Withdraws::Coin.where(currency: currency) }

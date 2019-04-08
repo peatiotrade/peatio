@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/rubykube/peatio-core.git
-  revision: a26a4acc2dee422e1c700ab6bef1d8d7f6358f2a
-  branch: feature/pluggable-wallets
+  revision: b5a8d86cd81f8149094a1b011bfe9e0321a60631
+  branch: feature/plugable-blockchains
   specs:
     peatio (0.4.5)
       amqp
