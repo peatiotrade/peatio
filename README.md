@@ -1,23 +1,23 @@
 # Peatio - an open-source crypto currency exchange
 
-[![Build Status](https://travis-ci.org/rubykube/peatio.svg?branch=master)](https://travis-ci.org/rubykube/peatio)
-[![Telegram Chat](https://cdn.rawgit.com/Patrolavia/telegram-badge/8fe3382b/chat.svg)](https://t.me/peatio)
+[![Build Status](https://travis-ci.org/peatiotrade/peatio.svg?branch=master)](https://travis-ci.org/peatiotrade/peatio)
+[![Telegram Chat](https://cdn.rawgit.com/Patrolavia/telegram-badge/8fe3382b/chat.svg)](https://t.me/peatiotrade)
 
-## [Peatio.tech](https://www.peatio.tech) Introduction
+## [Peatio.trade](https://www.peatio.trade) Introduction
 
 Peatio is a free and open-source crypto currency exchange implementation with the Rails framework.
 Peatio.tech is a fork of Peatio designed for micro-services architecture. We have simplified the code
 in order to use only Peatio API with external frontend and server components.
 
 To build your own exchange you should now run Peatio as a backend instead of forking the repository,
-and extend it using other microservices such as [Barong](https://www.github.com/rubykube/barong).
+and extend it using other microservices such as [Barong](https://www.github.com/peatiotrade/barong).
 
 ## Mission
 
 Our mission is to build an open-source crypto currency exchange with a high performance trading engine and incomparable security. We are moving toward dev/ops best practices of running an enterprise grade exchange.
 
 We provide webinar or on site training for installing, configuring and administration best practices of Peatio.
-Feel free to contact us for joining the next training session: [Peatio.tech](https://www.peatio.tech)
+Feel free to contact us for joining the next training session: [Peatio.trade](https://www.peatio.trade)
 
 Help is greatly appreciated, feel free to submit pull-requests or open issues.
 
@@ -54,8 +54,8 @@ You must know what you're doing, there's no shortcut. Please get prepared before
 * Powerful admin dashboard and management tools
 * Highly configurable and extendable
 * Industry standard security out of box
-* Maintained by [peatio.tech](https://www.peatio.tech)
-* [KYC Verification](http://en.wikipedia.org/wiki/Know_your_customer) provided by [Barong](https://www.github.com/rubykube/barong)
+* Maintained by [peatio.trade](https://www.peatio.trade)
+* [KYC Verification](http://en.wikipedia.org/wiki/Know_your_customer) provided by [Barong](https://www.github.com/peatiotrade/barong)
 
 ## Getting Started
 
@@ -82,7 +82,7 @@ Otherwise we advice to use [workbench based environment](#local-development-envi
 
 ### Local development environment with workbench:
 
-We suggest you to start using Peatio by installing [Workbench](https://github.com/rubykube/workbench). [Workbench](https://github.com/rubykube/workbench) which is based on [Docker containers](https://www.docker.com/what-docker) is a convenient and straightforward way to start Peatio development environment.
+We suggest you to start using Peatio by installing [Workbench](https://github.com/peatiotrade/workbench). [Workbench](https://github.com/rubykube/workbench) which is based on [Docker containers](https://www.docker.com/what-docker) is a convenient and straightforward way to start Peatio development environment.
 
 #### Prerequisites
 * [Docker](https://docs.docker.com/install/) installed
@@ -90,7 +90,7 @@ We suggest you to start using Peatio by installing [Workbench](https://github.co
 
 #### Prepare the workbench
 
-1. Recursive clone : `git clone --recursive https://github.com/rubykube/workbench.git`
+1. Recursive clone : `git clone --recursive https://github.com/peatiotrade/workbench.git`
 2. Move to workbench `cd workbench`
 3. Build the images: `make build`
 4. Run the application: `make run`
@@ -166,21 +166,19 @@ We want to make it super-easy for Peatio users and contributors to talk to us an
 
 ### Discourse
 
-[Rubykube Discourse Forum](https://discuss.rubykube.io)
-
 This is for all Peatio users. You can find guides, recipes, questions, and answers from Snowplow users including the Peatio.tech team.
 We welcome questions and contributions!
 
 ### Telegram
 
-[@peatio](https://t.me/peatio)
+[@peatio](https://t.me/peatiotrade)
 
 Chat with us and other community members on Telegram.
 
 ### GitHub
 Peatio issues
 
-If you spot a bug, then please raise an issue in our main GitHub project (rubykube/peatio); likewise, if you have developed a cool new feature or improvement in your Rubykube Peatio fork, then send us a pull request!
+If you spot a bug, then please raise an issue in our main GitHub project (peatiotrade/peatio); likewise, if you have developed a cool new feature or improvement in your Peatio fork, then send us a pull request!
 If you want to brainstorm a potential new feature, then the Rubykube Discourse Forum (see above) is probably a better place to start.
 
 ### Email
@@ -191,9 +189,9 @@ If you want to talk directly to us (e.g. about a commercially sensitive issue), 
 ## Getting Support and Customization
 
 If you need help with running/deploying/customizing Peatio,
-you can contact us on [peatio.tech](https://www.peatio.tech).
+you can contact us on [peatio.trade](https://www.peatio.trade).
 
-Contact us by email: [hello@peatio.tech](mailto:hello@peatio.tech)
+Contact us by email: [hello@peatio.trade](mailto:hello@peatio.trade)
 
 ## License
 
